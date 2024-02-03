@@ -1,6 +1,9 @@
 # Create T3 App
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+This is a [T3 Stack](https://create.t3.gg/) project (NextJS, TRPC, Tailwind, NextAuth, Prisma and TypeScript).
+
+# Where is our database?
+Currently we are using AWS's RDS, whereby we are using 'mysql', and integrating the superpowers of Prisma-ORM to design a complex model system of our application
 
 ## What's next? How do I make an app with this?
 
