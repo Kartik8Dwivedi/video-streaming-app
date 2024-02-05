@@ -104,6 +104,27 @@ async function main() {
             videoUrl: `https://res.cloudinary.com/${cloudinaryName}${video.videoUrl}`
         }
     }))
+
+    await processChunks(videoEngagements, 1, (videoEngagement) => 
+        prisma.videoEngagement.create({data:videoEngagement})
+    );
+
+    await processChunks(followEngagements, 1, async (followEngagement) => {
+        const existingFollowEngagements = await prisma.followEngagement.findMany({
+            where: {
+                followerId: followEngagement.followerId,
+                followingId: followEngagement.followingId,
+            },
+        });
+        if(
+            existingFollowEngagements.length === 0 ||
+            !existingFollowEngagements
+        ){
+            return prisma.followEngagement.create({ data: followEngagement });
+        }else{
+            return;
+        }
+    })
 }
 
 main()
