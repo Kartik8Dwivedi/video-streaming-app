@@ -181,6 +181,28 @@ async function main() {
             }
         })
     );
+
+    await processChunks(playlists, 1, async (playlist) => 
+        prisma.playlist.upsert({
+            where: {id: playlist.id},
+            update: {
+                ...playlist,
+                userId: getNextUserId(),
+                createdAt: playlist.createdAt ? new Date(playlist.createdAt) : undefined,                
+            },
+            create: {
+                ...playlist,
+                userId: getNextUserId(),
+                createdAt: playlist.createdAt ? new Date(playlist.createdAt) : undefined,
+            },
+        })
+    );
+
+    await processChunks(playlistHasVideos, 1, (playlistHasVideo) => 
+        prisma.playlistHasVideo.create({
+            data: playlistHasVideo
+        })
+    );
 }
 
 main()
