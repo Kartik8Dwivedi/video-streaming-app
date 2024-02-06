@@ -125,6 +125,29 @@ async function main() {
             return;
         }
     })
+
+    await processChunks(announcements, 1, (announcement) => 
+        prisma.announcement.create({data:announcement})
+    );
+
+    await processChunks(announcementEngagements, 1, async (announcementEngagements) => {
+        // find existing annoucement engagements if any, with announcement or user ID
+        const exisitingAnnouncementEngagements = await prisma.announcementEngagement.findMany({
+            where: {
+                announcementId: announcementEngagements.announcementId,
+                userId: announcementEngagements.userId,
+            },
+        });
+
+        if(
+            exisitingAnnouncementEngagements.length === 0 ||
+            !exisitingAnnouncementEngagements
+        ){
+            return prisma.announcementEngagement.create({ data: announcementEngagements });
+        }else{
+            return;
+        }
+    });
 }
 
 main()
