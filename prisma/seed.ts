@@ -54,6 +54,20 @@ const comments: Comment[] = JSON.parse(fs.readFileSync(commentsFile, 'utf-8')) a
 const playlists: Playlist[] = JSON.parse(fs.readFileSync(playlistsFile, 'utf-8')) as Playlist[];
 const playlistHasVideos: PlaylistHasVideo[] = JSON.parse(fs.readFileSync(playlistHasVideoFile, 'utf-8')) as PlaylistHasVideo[];
 
+// Function to generate next id between a range
+const generateNextId = (start: number, end: number) => {
+    let current = start;
+    return function getNextId(){
+        const nextId = current;
+        current = current >= end ? start : current + 1;
+        return nextId.toString();
+    }
+};
+
+const getNextVideoId = generateNextId(1, 31);
+const getNextUserId = generateNextId(164, 178);
+// TODO : we have hardcoded the user and video id here, we need to change it to dynamic
+
 
 const cloudinaryName = process.env.NEXT_PUBLIC_CLOUDINARY_NAME || '';
 
@@ -148,6 +162,25 @@ async function main() {
             return;
         }
     });
+
+    await processChunks(comments, 1, (comment) => 
+        prisma.comment.upsert({
+            where: { id: comment.id },
+            update: {
+                ...comment,
+                userId: getNextUserId(),
+                videoId: getNextVideoId(),
+                createdAt: comment.createdAt ? new Date(comment.createdAt) : undefined,
+            },
+            create: {
+                ...comment,
+                userId: getNextUserId(),
+                videoId: getNextVideoId(),
+                createdAt: comment.createdAt ? new Date(comment.createdAt) : undefined,
+            
+            }
+        })
+    );
 }
 
 main()
